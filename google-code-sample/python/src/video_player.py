@@ -1,3 +1,4 @@
+# please note this is not my cleanest and most efficient code just a rush to get as much done as possible. 
 """A video player class."""
 import random
 from .video_library import VideoLibrary
