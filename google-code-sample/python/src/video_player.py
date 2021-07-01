@@ -12,6 +12,18 @@ class VideoPlayer:
         self.video = None
         self.isPaused = False
         self.playLists = []
+        self.tagList = []
+        for i in self._video_library.get_all_videos():
+            self.tagList.append(
+                {
+                    'name': i._title,
+                    'video_id': i.video_id,
+                    'tags': i.tags,
+                    'flagged': False,
+                    'flag_reason': 'Not supplied'
+                }
+            )
+
 
     def number_of_videos(self):
         num_videos = len(self._video_library.get_all_videos())
@@ -333,16 +345,69 @@ class VideoPlayer:
         Args:
             video_tag: The video tag to be used in search.
         """
-        print("search_videos_tag needs implementation")
+        videos = []
+        datalist = self._video_library.get_all_videos()
+        for i in datalist:
+            videos.append(
+                {
+                    'name':i._title,
+                    'video_id':i.video_id,
+                    'tags':i.tags
+                }
+            )
+        foundItems = []
+        for i in videos:
+            if video_tag.lower().strip() in i['tags']:
+                foundItems.append(i)
+        
+        index = 1
+        if len(foundItems) > 0:
+            print(f"Here are the results for {video_tag}:")
+            for i in foundItems:
+                print(f"{index}) {i['name']} ({i['video_id']}) ["+' '.join(i['tags'])+']\n')
+                index +=1
+            userChoice = input("Would you like to play any of the above? If yes, specify the number of the video.\nIf your answer is not a valid number, we will assume it's a no.")
+            if "no" in userChoice.lower().strip(): 
+                pass
+            else:
+                try:
+                    usernum = int(userChoice) -1
+                    print(f"Playing video: {foundItems[usernum]['name']}")
+                    
+                except Exception as e:
+                    pass
+        else:
+            print(f"No search results for {video_tag}")
 
-    def flag_video(self, video_id, flag_reason=""):
+    def flag_video(self, video_id, flag_reason="Not supplied"):
         """Mark a video as flagged.
 
         Args:
             video_id: The video_id to be flagged.
             flag_reason: Reason for flagging the video.
         """
-        print("flag_video needs implementation")
+        idList = []
+        
+        datalist = self._video_library.get_all_videos()
+        for i in datalist:
+            idList.append(i.video_id)
+        foundItems = []
+        
+
+        if video_id not in idList:
+            print("Cannot flag video: Video does not exist")
+        elif video_id in idList:
+            for i in self.tagList:
+                if i['flagged'] == True:
+                    if i['video_id'] == video_id:
+                        print("Cannot flag video: Video is already flagged")
+                elif  i['flagged'] == False:
+                    if i['video_id'] == video_id:
+                        i['flagged'] = True
+                        if flag_reason != 'Not supplied':
+                            i['flag_reason'] = flag_reason
+                        print(f"Successfully flagged video: {i['name']} (reason: {i['flag_reason']})")
+        
 
     def allow_video(self, video_id):
         """Removes a flag from a video.
